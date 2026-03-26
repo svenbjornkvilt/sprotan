@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Data files (too large for git — rebuild with scrape_sprotin.py + import_db.py)
+db/sprotin.db
+data/raw/
+data/raw_en_fo/
+data/raw_fo_en/
+data/processed/
+data/processed_en_fo/
+data/processed_fo_en/
+data/lockwood_faroese.pdf
+data/faroese_grammar_wiki.txt
+data/stats.json
+data/progress*.json
+data/dictionary_metadata*.json
+
+# Built HFST tools (rebuilt in Docker)
+tools/
+/tmp/
+
+# Backup
+mcp_server_v1_backup.py
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+
+# Claude Code
+.claude/plans/

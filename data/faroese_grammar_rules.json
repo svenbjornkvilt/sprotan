@@ -1,0 +1,611 @@
+{
+  "_source": "https://en.wikipedia.org/wiki/Faroese_grammar + sprotin.fo dictionary data",
+
+  "personal_pronouns": {
+    "singular": {
+      "1st": {"nom": "eg", "acc": "meg", "dat": "mær", "gen": "mín"},
+      "2nd": {"nom": "tú", "acc": "teg", "dat": "tær", "gen": "tín"},
+      "3rd_m": {"nom": "hann", "acc": "hann", "dat": "honum", "gen": "hansara"},
+      "3rd_f": {"nom": "hon", "acc": "hana", "dat": "henni", "gen": "hennara"},
+      "3rd_n": {"nom": "tað", "acc": "tað", "dat": "tí", "gen": "tess"}
+    },
+    "plural": {
+      "1st": {"nom": "vit", "acc": "okkum", "dat": "okkum", "gen": "okkara"},
+      "2nd": {"nom": "tit", "acc": "tykkum", "dat": "tykkum", "gen": "tykkara"},
+      "3rd_m": {"nom": "teir", "acc": "teir", "dat": "teimum", "gen": "teirra"},
+      "3rd_f": {"nom": "tær", "acc": "tær", "dat": "teimum", "gen": "teirra"},
+      "3rd_n": {"nom": "tey", "acc": "tey", "dat": "teimum", "gen": "teirra"}
+    },
+    "_note": "tey (3rd pl neuter) is used when both genders are meant"
+  },
+
+  "definite_articles": {
+    "singular": {
+      "m": {"nom": "tann", "acc": "tann", "dat": "tí", "gen": "tess"},
+      "f": {"nom": "tann", "acc": "ta", "dat": "tí", "gen": "teirrar"},
+      "n": {"nom": "tað", "acc": "tað", "dat": "tí", "gen": "tess"}
+    },
+    "plural": {
+      "m": {"nom": "teir", "acc": "teir", "dat": "teimum", "gen": "teirra"},
+      "f": {"nom": "tær", "acc": "tær", "dat": "teimum", "gen": "teirra"},
+      "n": {"nom": "tey", "acc": "tey", "dat": "teimum", "gen": "teirra"}
+    }
+  },
+
+  "weak_verb_classes": {
+    "_note": "4 classes of weak verbs. Endings shown as suffixes to add to stem.",
+    "class1": {
+      "example": "kalla (to call)",
+      "stem": "kall-",
+      "present": {"1sg": "-i", "2sg": "-ar", "3sg": "-ar", "pl": "-a"},
+      "past": {"1sg": "-aði", "2sg": "-aði", "3sg": "-aði", "pl": "-aðu"},
+      "supine": "-að",
+      "imperative": "-a"
+    },
+    "class2": {
+      "example": "selja (to sell)",
+      "stem_pres": "selj-/sel-",
+      "stem_past": "sel-",
+      "present": {"1sg": "-i", "2sg": "-ur", "3sg": "-ur", "pl": "-a"},
+      "past": {"1sg": "-di", "2sg": "-di", "3sg": "-di", "pl": "-du"},
+      "supine": "-t"
+    },
+    "class3": {
+      "example": "døma (to judge)",
+      "stem": "døm-",
+      "present": {"1sg": "-i", "2sg": "-ir", "3sg": "-ir", "pl": "-a"},
+      "past": {"1sg": "-di", "2sg": "-di", "3sg": "-di", "pl": "-du"},
+      "supine": "-t"
+    },
+    "class4": {
+      "example": "rógva (to row)",
+      "stem_pres": "rógv-/rø-",
+      "stem_past": "ró-",
+      "present": {"1sg": "-i", "2sg": "-rt", "3sg": "-r", "pl": "-a"},
+      "past": {"1sg": "-ði", "2sg": "-ði", "3sg": "-ði", "pl": "-ðu"},
+      "supine": "-ð"
+    }
+  },
+
+  "strong_verb_classes": {
+    "_note": "7 classes distinguished by vowel alternation (ablaut). Pattern: infinitive - 3sg.pres - 1sg.past - pl.past - supine",
+    "class1": {
+      "vowel_pattern": "í - í - ei - i - i",
+      "example": "bíta (bite): bítur - beit - bitu - bitið",
+      "present": {"1sg": "-i (stem vowel)", "2sg": "-ur", "3sg": "-ur", "pl": "inf. form"},
+      "past": {"1sg": "ablaut (no ending)", "2sg": "+st", "3sg": "ablaut (no ending)", "pl": "+u"}
+    },
+    "class2": {
+      "vowel_pattern": "ó/ú - ý - ey - u - o",
+      "example": "bróta (break): brýtur - breyt - brutu - brotið"
+    },
+    "class3": {
+      "vowel_pattern": "e/i/ø - i - a - u - o/u",
+      "example": "svimja (swim): svimur - svam - svumu - svomið"
+    },
+    "class4": {
+      "vowel_pattern": "e/o - e - a - ó - o",
+      "example": "bera (bear): ber - bar - bóru - borið",
+      "subclass": "koma (come): kemur - kom - komu - komið"
+    },
+    "class5": {
+      "vowel_pattern": "e/i - e/i - a/á - ó - i",
+      "example": "liggja (lie): liggur - lá - lógu - ligið"
+    },
+    "class6": {
+      "vowel_pattern": "a - e - ó - ó - a",
+      "example": "fara (go): fer - fór - fóru - farið"
+    },
+    "class7": {
+      "vowel_pattern": "a/á - æ - e - i - i",
+      "example": "fáa (get): fær - fekk - fingu - fingið"
+    },
+    "person_endings_present": {
+      "1sg": "stem + -i",
+      "2sg": "3sg form (same as 3sg for most)",
+      "3sg": "stem with ablaut + -ur (or no ending for some)",
+      "pl": "infinitive form"
+    },
+    "person_endings_past": {
+      "1sg": "ablaut stem (no ending)",
+      "2sg": "1sg + -st (or -t for class 6)",
+      "3sg": "same as 1sg",
+      "pl": "ablaut stem + -u"
+    }
+  },
+
+  "auxiliary_verbs": {
+    "vera": {
+      "meaning": "to be",
+      "present": {"1sg": "eri", "2sg": "ert", "3sg": "er", "pl": "eru"},
+      "past": {"1sg": "var", "2sg": "vart", "3sg": "var", "pl": "vóru"},
+      "supine": "verið"
+    },
+    "hava": {
+      "meaning": "to have",
+      "present": {"1sg": "havi", "2sg": "hevur", "3sg": "hevur", "pl": "hava"},
+      "past": {"1sg": "hevði", "2sg": "hevði", "3sg": "hevði", "pl": "høvdu"},
+      "supine": "havt"
+    },
+    "verða": {
+      "meaning": "to become",
+      "present": {"1sg": "verði", "2sg": "verður", "3sg": "verður", "pl": "verða"},
+      "past": {"1sg": "varð", "2sg": "varðst", "3sg": "varð", "pl": "vórðu"},
+      "supine": "verðið"
+    },
+    "blíva": {
+      "meaning": "to become/stay",
+      "present": {"1sg": "blívi", "2sg": "blívur", "3sg": "blívur", "pl": "blíva"},
+      "past": {"1sg": "bleiv", "2sg": "bleivst", "3sg": "bleiv", "pl": "blivu"},
+      "supine": "blivið"
+    }
+  },
+
+  "preterite_present_verbs": {
+    "kunna": {
+      "meaning": "can, to be able to",
+      "present": {"1sg": "kann", "2sg": "kanst", "3sg": "kann", "pl": "kunnu/kunna"},
+      "past": {"1sg": "kundi", "2sg": "kundi", "3sg": "kundi", "pl": "kundu"},
+      "supine": "kunnað"
+    },
+    "munna": {
+      "meaning": "to want (dialectal)",
+      "present": {"1sg": "man", "2sg": "manst", "3sg": "man", "pl": "munnu/munna"},
+      "past": {"1sg": "mundi", "2sg": "mundi", "3sg": "mundi", "pl": "mundu"},
+      "supine": "munnað"
+    },
+    "mega": {
+      "meaning": "may, to be allowed to",
+      "present": {"1sg": "má", "2sg": "mást", "3sg": "má", "pl": "mugu/mega"},
+      "past": {"1sg": "mátti", "2sg": "mátti", "3sg": "mátti", "pl": "máttu"},
+      "supine": "megað"
+    },
+    "skula": {
+      "meaning": "shall",
+      "present": {"1sg": "skal", "2sg": "skalt", "3sg": "skal", "pl": "skulu/skula"},
+      "past": {"1sg": "skuldi", "2sg": "skuldi", "3sg": "skuldi", "pl": "skuldu"},
+      "supine": "skulað"
+    },
+    "vita": {
+      "meaning": "to know",
+      "present": {"1sg": "veit", "2sg": "veitst", "3sg": "veit", "pl": "vita"},
+      "past": {"1sg": "visti", "2sg": "visti", "3sg": "visti", "pl": "vistu"},
+      "supine": "vitað"
+    },
+    "vilja": {
+      "meaning": "to want",
+      "present": {"1sg": "vil", "2sg": "vilt", "3sg": "vil", "pl": "vilja"},
+      "past": {"1sg": "vildi", "2sg": "vildi", "3sg": "vildi", "pl": "vildu"},
+      "supine": "viljað"
+    }
+  },
+
+  "adjective_declension": {
+    "strong_indefinite": {
+      "_note": "Used when noun is indefinite (no article)",
+      "singular": {
+        "m": {"nom": "-ur", "acc": "-an", "dat": "-um", "gen": "-s"},
+        "f": {"nom": "-/-ø", "acc": "-a", "dat": "-ari", "gen": "-ar"},
+        "n": {"nom": "-t", "acc": "-t", "dat": "-um", "gen": "-s"}
+      },
+      "plural": {
+        "m": {"nom": "-ir", "acc": "-ar", "dat": "-um", "gen": "-a"},
+        "f": {"nom": "-ar", "acc": "-ar", "dat": "-um", "gen": "-a"},
+        "n": {"nom": "-ø", "acc": "-ø", "dat": "-um", "gen": "-a"}
+      }
+    },
+    "weak_definite": {
+      "_note": "Used with definite article (tann/tað/ta). All forms end in -a or -u.",
+      "singular": {
+        "m": {"nom": "-i", "acc": "-a", "dat": "-a", "gen": "-a"},
+        "f": {"nom": "-a", "acc": "-u", "dat": "-u", "gen": "-u"},
+        "n": {"nom": "-a", "acc": "-a", "dat": "-a", "gen": "-a"}
+      },
+      "plural_all_genders": {
+        "nom": "-u", "acc": "-u", "dat": "-u", "gen": "-u"
+      }
+    }
+  },
+
+  "noun_suffix_articles": {
+    "_note": "Faroese attaches definite article as suffix to noun",
+    "masculine_examples": {
+      "bátur": {"nom_def": "báturin", "acc_def": "bátin", "dat_def": "bátinum", "gen_def": "bátsins"},
+      "plural": {"nom_def": "bátarnir", "acc_def": "bátarnar", "dat_def": "bátunum", "gen_def": "bátanna"}
+    },
+    "feminine_examples": {
+      "genta": {"nom_def": "gentan", "acc_def": "gentuna", "dat_def": "gentuni", "gen_def": "gentunnar"},
+      "plural": {"nom_def": "genturnar", "acc_def": "genturnar", "dat_def": "gentunum", "gen_def": "gentanna"}
+    },
+    "neuter_examples": {
+      "barn": {"nom_def": "barnið", "acc_def": "barnið", "dat_def": "barninum", "gen_def": "barnsins"},
+      "plural": {"nom_def": "børnini", "acc_def": "børnini", "dat_def": "børnunum", "gen_def": "barnanna"}
+    }
+  },
+
+  "interrogative_pronouns": {
+    "singular": {
+      "m": {"nom": "hvør", "acc": "hvønn", "dat": "hvørjum", "gen": "hvørs"},
+      "f": {"nom": "hvør", "acc": "hvørja", "dat": "hvørj(ar)i", "gen": "hvørjar"},
+      "n": {"nom": "hvat", "acc": "hvat", "dat": "hvørjum", "gen": "hvørs"}
+    },
+    "plural": {
+      "m": {"nom": "hvørjir", "acc": "hvørjar", "dat": "hvørjum", "gen": "hvørja"},
+      "f": {"nom": "hvørjar", "acc": "hvørjar", "dat": "hvørjum", "gen": "hvørja"},
+      "n": {"nom": "hvørji", "acc": "hvørji", "dat": "hvørjum", "gen": "hvørja"}
+    }
+  },
+
+  "numeral_tvey": {
+    "_note": "Even the numeral 'two' is inflected",
+    "m": {"nom": "tveir", "acc": "tveir", "dat": "tveimum", "gen": "tveggja"},
+    "f": {"nom": "tvær", "acc": "tvær", "dat": "tveimum", "gen": "tveggja"},
+    "n": {"nom": "tvey", "acc": "tvey", "dat": "tveimum", "gen": "tveggja"}
+  },
+
+  "numeral_einn_declension": {
+    "_source": "https://fo.wikipedia.org/wiki/Talorð",
+    "singular": {
+      "_note": "Grundtøl — basic numeral 'one' in singular",
+      "m": {"nom": "ein", "acc": "ein", "dat": "einum"},
+      "f": {"nom": "ein", "acc": "eina", "dat": "einari"},
+      "n": {"nom": "eitt", "acc": "eitt", "dat": "einum"}
+    },
+    "plural_skiftitøl": {
+      "_note": "Skiftitøl — distributive numeral 'one set/pair of'. Used for groups: eini kort (52 cards), eini hús (building+outbuildings), eini boð (messages).",
+      "m": {"nom": "einir", "acc": "einar", "dat": "einum", "gen": "eina"},
+      "f": {"nom": "einar", "acc": "einar", "dat": "einum", "gen": "eina"},
+      "n": {"nom": "eini", "acc": "eini", "dat": "einum", "gen": "eina"}
+    }
+  },
+
+  "prepositions": {
+    "_source": "Lockwood 'An Introduction to Modern Faroese' §§93-99, Petersen & Adams grammar, Wikipedia, academic papers",
+    "_note": "Modern Faroese is shifting: dative is losing ground to accusative with many prepositions. This list reflects traditional grammar.",
+
+    "accusative": {
+      "_note": "Prepositions that govern accusative (hvønnfall)",
+      "til": {"meaning": "to, for", "examples": ["fara til Havnar", "sokkar til mannin mín"]},
+      "um": {"meaning": "about, around, during", "examples": ["tosa um veðrið", "um summarið"]},
+      "umkring": {"meaning": "around", "examples": ["umkring húsið"]},
+      "gjøgnum": {"meaning": "through", "examples": ["fara gjøgnum túnilin"]},
+      "eftir": {"meaning": "after, for (fetching)", "examples": ["eftir døgurða", "fara eftir mjólk"]},
+      "uttan": {"meaning": "without, outside", "examples": ["uttan pening"]},
+      "vegna": {"meaning": "because of", "examples": ["vegna veðrið"]},
+      "millum": {"meaning": "between, among", "examples": ["millum húsini"]},
+      "innan": {"meaning": "within, inside", "examples": ["innan bygdina"]}
+    },
+
+    "dative": {
+      "_note": "Prepositions that govern dative (hvørjumfall)",
+      "av": {"meaning": "of, from, by", "examples": ["av øllum", "av tí"]},
+      "frá": {"meaning": "from", "examples": ["frá Havn", "frá honum"]},
+      "hjá": {"meaning": "at, with, by (possession)", "examples": ["hjá mær", "hjá ommu"]},
+      "hóast": {"meaning": "despite", "examples": ["hóast veðrinum"]},
+      "móti": {"meaning": "against, towards", "examples": ["móti vindinum"]},
+      "undan": {"meaning": "away from, from under", "examples": ["undan vindinum"]},
+      "úr": {"meaning": "out of, from", "examples": ["úr bátinum", "úr bygdini"]}
+    },
+
+    "accusative_or_dative": {
+      "_note": "Prepositions that can govern either accusative or dative depending on meaning. Generally: accusative = motion/direction, dative = location/state.",
+      "á": {
+        "meaning": "on, onto",
+        "accusative_use": "direction/motion (á sjógvin = onto the sea)",
+        "dative_use": "location/state (á bátinum = on the boat)",
+        "examples": ["fara á sjógv (acc)", "vera á báti (dat)"]
+      },
+      "í": {
+        "meaning": "in, into",
+        "accusative_use": "direction/motion (fara í handil = go to the shop)",
+        "dative_use": "location/state (vera í bátinum = be in the boat)",
+        "examples": ["fara í bát (acc)", "sitja í stovuni (dat)"]
+      },
+      "við": {
+        "meaning": "with, by, at",
+        "accusative_use": "some fixed expressions",
+        "dative_use": "most common usage",
+        "examples": ["tosa við meg (acc)", "við borðinum (dat)"]
+      },
+      "fyri": {
+        "meaning": "for, before, in front of",
+        "accusative_use": "traditional and increasingly common",
+        "dative_use": "older usage, some fixed expressions",
+        "examples": ["fyri meg (acc)", "fyri borðinum (dat = at the table)"]
+      },
+      "yvir": {
+        "meaning": "over, above",
+        "accusative_use": "motion (fara yvir brúna)",
+        "dative_use": "location (yvir borðinum)",
+        "examples": ["fara yvir fjørð (acc)", "hanga yvir borðinum (dat)"]
+      },
+      "undir": {
+        "meaning": "under",
+        "accusative_use": "motion",
+        "dative_use": "location",
+        "examples": ["leggja undir høvdið (acc)", "liggja undir borðinum (dat)"]
+      },
+      "niðan": {"meaning": "below, from below"},
+      "oman": {"meaning": "above, from above"}
+    },
+
+    "genitive": {
+      "_note": "Very limited in modern Faroese. Mostly replaced by accusative or prepositional phrases.",
+      "til": {"meaning": "to (sometimes genitive in formal/literary use)", "note": "Usually accusative in modern speech"},
+      "millum": {"meaning": "between (sometimes genitive)", "note": "Usually accusative in modern speech"},
+      "vegna": {"meaning": "because of (sometimes genitive)", "note": "Usually accusative in modern speech"}
+    }
+  },
+
+  "word_order": {
+    "_note": "Faroese follows V2 (verb-second) word order in main clauses",
+    "main_clause": "Subject-Verb-Object (SVO) or V2: the finite verb is always in second position",
+    "question": "Verb-Subject-Object (VSO): Hvar ert tú? Hvat gert tú?",
+    "subordinate": "Conjunction-Subject-Verb: ...tí at hann er sjúkur",
+    "examples": [
+      "Eg fari heim (SVO)",
+      "Í morgin fari eg heim (V2: adverb first, then verb)",
+      "Hvar fert tú? (question: verb before subject)",
+      "Hann segði, at hann var sjúkur (subordinate clause)"
+    ]
+  },
+
+  "imperative": {
+    "_note": "Imperative = verb stem without -a ending. For most verbs, drop the infinitive -a.",
+    "rule": "infinitive minus -a = imperative",
+    "examples": {
+      "hoyra": "hoyr!",
+      "fara": "far!",
+      "koma": "kom!",
+      "siga": "sig!",
+      "gera": "ger!",
+      "taka": "tak!",
+      "vita": "vit!",
+      "halda": "hald!",
+      "lesa": "les!",
+      "seta": "set!"
+    },
+    "common_mistake": "Do NOT use infinitive as imperative. 'Hoyra!' is wrong — use 'Hoyr!'"
+  },
+
+  "common_mistakes": {
+    "_note": "Common grammar mistakes to avoid when writing Faroese",
+    "gender_agreement": {
+      "rule": "Adjectives MUST agree with noun gender. Check noun gender before choosing adjective form.",
+      "examples": {
+        "wrong": "ein gamal kona",
+        "correct": "ein gomul kona",
+        "explanation": "kona is feminine (kv). gamalur f.nom = gomul, not gamal (which is masculine)"
+      }
+    },
+    "weak_adjective_forms": {
+      "rule": "With definite article or possessive, use weak adjective form (-a/-u), not strong.",
+      "examples": {
+        "wrong": "eina gomla klokku",
+        "correct": "eina gamla klokku",
+        "explanation": "Weak f.acc of gamalur = gamla (not gomla). gomul is only strong f.nom."
+      }
+    },
+    "neuter_article": {
+      "rule": "Neuter nouns take 'eitt' (not 'ein'). Check noun gender.",
+      "examples": {
+        "wrong": "ein kvøld",
+        "correct": "eitt kvøld / eitt kvøldið",
+        "explanation": "kvøld is neuter (h), so article = eitt"
+      }
+    },
+    "preposition_case": {
+      "rule": "til takes accusative, not dative.",
+      "examples": {
+        "wrong": "sokkar til manninum mínum",
+        "correct": "sokkar til mannin mín",
+        "explanation": "til + accusative: mannin (acc) not manninum (dat)"
+      }
+    },
+    "reflexive_case_agreement": {
+      "rule": "sjálvur must agree in case AND number with what it refers to. dat.pl = sjálvum (not sjálvi). sjálvi is dat.sg.m only.",
+      "examples": [
+        {"wrong": "vita tað sjálv", "correct": "vita tað sjálvi", "context": "dative singular masculine"},
+        {"wrong": "frá fólkum sjálvi", "correct": "frá fólkum sjálvum", "context": "dative plural — sjálvum matches fólkum"}
+      ]
+    },
+    "adjective_plural_agreement": {
+      "rule": "Predicate adjectives must agree in NUMBER with the subject. Singular neuter ≠ plural.",
+      "examples": {
+        "wrong": "teldur eru gott amboð",
+        "correct": "teldur eru góð amboð",
+        "explanation": "teldur (plural) + amboð (plural) → góð (plural neuter), NOT gott (singular neuter)"
+      }
+    },
+    "possessive_case_after_preposition": {
+      "rule": "Possessive pronouns must match the case required by the preposition, not just the noun. við takes dative → both noun AND possessive must be dative.",
+      "examples": [
+        {"wrong": "saman við konu sína", "correct": "saman við konu síni", "explanation": "við + dative: konu (dat) + síni (dat.f.sg), not sína (acc)"},
+        {"wrong": "við mannin sín", "correct": "við manninum sínum", "explanation": "við + dative: manninum (dat) + sínum (dat)"}
+      ]
+    },
+    "verb_number_agreement": {
+      "rule": "Verb must agree in NUMBER with its subject. If subject is singular, verb is singular — even if the sentence mentions multiple people as context.",
+      "examples": {
+        "wrong": "hann sat saman við konu og tosaðu um brævið",
+        "correct": "hann sat saman við konu og tosaði um brævið",
+        "explanation": "Subject is 'hann' (singular) → tosaði (singular), not tosaðu (plural). If you mean 'they talked', restructure: 'Tey tosaðu um brævið.'"
+      }
+    },
+    "adjective_gender_predicate": {
+      "rule": "Predicate adjectives must match the GENDER of the subject. vakur = masculine, vøkur = feminine, vakurt = neuter.",
+      "examples": [
+        {"wrong": "hon var vakur", "correct": "hon var vøkur", "explanation": "hon = feminine → vøkur (f.nom), not vakur (m.nom)"},
+        {"wrong": "síðan var vakur", "correct": "síðan var vøkur", "explanation": "síða (kv) = feminine → vøkur"}
+      ]
+    },
+    "ein_vs_einsamallur": {
+      "rule": "'ein' is a numeral/article ('one/a'), NOT an adjective meaning 'alone'. To say 'alone' use 'einsamallur' (m) / 'einsamøll' (f) / 'einsamalt' (n), or 'eina' (adverb).",
+      "examples": {
+        "wrong": "hon sat ein í stovuni",
+        "correct": "hon sat einsamøll í stovuni / hon sat eina í stovuni",
+        "explanation": "ein = one/a (numeral). einsamøll = alone (adjective, f.nom). eina = alone (adverb)."
+      }
+    },
+    "number_agreement_einki": {
+      "rule": "'einki' (nothing) takes SINGULAR verb, not plural.",
+      "examples": {
+        "wrong": "einki merki vóru eftir",
+        "correct": "einki merki var eftir",
+        "explanation": "einki is singular, so verb must be singular: var (not vóru)"
+      }
+    },
+    "verb_2sg_present": {
+      "rule": "2nd person singular present often differs from 3sg. Check conjugation before using.",
+      "examples": {
+        "wrong": "hvat meinar tú?",
+        "correct": "hvat meint tú?",
+        "explanation": "meina: 3sg=meinar, but 2sg=meint. Many verbs: 2sg adds -t or -st to stem."
+      }
+    },
+    "preposition_a_vs_i": {
+      "rule": "'á' = on (surface). 'í' = in (inside). For impact/hitting a surface, use 'á' not 'í'.",
+      "examples": {
+        "wrong": "regn sló í gluggan",
+        "correct": "regn sló á gluggan",
+        "explanation": "Rain hits ON the window (surface), not IN the window."
+      }
+    },
+    "missing_verb_in_sentence": {
+      "rule": "Every clause needs a verb. Do not write verbless fragments.",
+      "examples": {
+        "wrong": "Bert ein dropi av vatni á gólvinum.",
+        "correct": "Bert ein dropi av vatni lá á gólvinum.",
+        "explanation": "Missing verb 'lá' (lay). Every Faroese sentence needs a finite verb."
+      }
+    },
+    "natural_expressions": {
+      "rule": "Use natural Faroese expressions, not literal translations. Faroese has its own idioms.",
+      "examples": [
+        {"wrong": "geva mær skjól til morgins", "correct": "bjóða mær tak yvir høvdi til í morgin", "explanation": "'skjól' is literary. 'tak yvir høvdi' (roof over head) is natural. 'til morgins' → 'til í morgin'."},
+        {"wrong": "hann er kaldur um føturnar", "correct": "hann er kaldur um føturnar", "explanation": "This one is actually OK — but avoid 'hann frýsur á føtunum' which is a direct English translation."}
+      ]
+    },
+    "til_i_morgin": {
+      "rule": "'til morgins' is not natural. Use 'til í morgin' (until tomorrow) or 'til morgun'.",
+      "examples": {
+        "wrong": "skjól til morgins",
+        "correct": "tak yvir høvdi til í morgin"
+      }
+    },
+    "hyggja_vs_hugsa": {
+      "rule": "hyggja/hugdi = to LOOK at, to see. hugsa/hugsaði = to THINK about. Do NOT use 'hugdi' when you mean 'thought about'.",
+      "examples": [
+        {"wrong": "hann hugdi um hurðina", "correct": "hann hugsaði um hurðina", "explanation": "hugdi = looked at. hugsaði = thought about."},
+        {"wrong": "hann hugdi ikki um reglurnar", "correct": "hann hugsaði ikki um reglurnar", "explanation": "Same: hugsa = think, hyggja = look."}
+      ],
+      "note": "hyggja (hugdi) = look/gaze. hugsa (hugsaði) = think/consider. Very common mistake."
+    },
+    "kota_accusative": {
+      "rule": "kota (code) is feminine (kv). Accusative = kotu, not kota.",
+      "examples": {
+        "wrong": "skrivaði kota",
+        "correct": "skrivaði kotu",
+        "explanation": "kota (kv1): nom=kota, acc=kotu, dat=kotu"
+      }
+    },
+    "til_arbeiðis": {
+      "rule": "'fara á arbeiði' is OK but 'fara til arbeiðis' is more natural.",
+      "examples": {
+        "less_natural": "hann fór á arbeiði",
+        "more_natural": "hann fór til arbeiðis"
+      }
+    },
+    "vid_telduna_not_at_teldu": {
+      "rule": "'seta seg við telduna' (sit down at the computer) is more natural than 'seta seg at teldu'.",
+      "examples": {
+        "less_natural": "setti seg at teldu",
+        "more_natural": "setti seg við telduna"
+      }
+    },
+    "i_lummanum_hja": {
+      "rule": "'í lummanum hjá honum' is more natural than 'í lumman á honum' for 'in his pocket'.",
+      "examples": {
+        "less_natural": "í lumman á honum",
+        "more_natural": "í lummanum hjá honum"
+      }
+    },
+    "droymdi_not_dreymdi": {
+      "rule": "The past tense of 'droyma' (to dream) is 'droymdi', not 'dreymdi'.",
+      "examples": {
+        "wrong": "um náttina dreymdi hann",
+        "correct": "um náttina droymdi hann"
+      }
+    },
+    "dugnaligur_not_dugligur": {
+      "rule": "'dugnaligur' (capable/good) is the common word. 'dugligur' is less natural.",
+      "examples": {
+        "less_natural": "hann var dugligur",
+        "more_natural": "hann var dugnaligur"
+      }
+    },
+    "nogdan_not_tilfriðs": {
+      "rule": "'nøgdur' (satisfied) is more everyday than 'tilfriðs'. Use 'kendi seg ikki nøgdan'.",
+      "examples": {
+        "formal": "kendi seg ikki tilfriðs",
+        "everyday": "kendi seg ikki nøgdan"
+      }
+    },
+    "anda_past_tense": {
+      "rule": "'anda' (to breathe) past tense is 'andaði', not 'ondu'.",
+      "examples": {
+        "wrong": "sum tændu og ondu",
+        "correct": "sum tændu og andaðu"
+      }
+    },
+    "eina_langa_lotu_accusative": {
+      "rule": "Time duration takes accusative: 'í eina langa løtu' (for a long moment), not 'eina langa løtu' without 'í'.",
+      "examples": {
+        "less_natural": "eingin segði nakað eina langa løtu",
+        "more_natural": "eingin segði nakað í eina langa løtu"
+      }
+    },
+    "keypti_saer_not_seg": {
+      "rule": "'keypa sær' (buy oneself) uses dative reflexive 'sær', not accusative 'seg'.",
+      "examples": {
+        "wrong": "keypti seg kaffi",
+        "correct": "keypti sær kaffi",
+        "explanation": "sær = dative reflexive (to/for oneself). seg = accusative reflexive. Buying is 'for oneself' → dative."
+      }
+    },
+    "hyggja_at_not_a": {
+      "rule": "'hyggja at' (look at) uses 'at' not 'á'. 'hyggja á' is less natural.",
+      "examples": {
+        "less_natural": "hugdi hon á fólkið",
+        "more_natural": "hugdi hon at fólkinum",
+        "explanation": "hyggja at + dative is the natural construction."
+      }
+    },
+    "skiggi_not_skja": {
+      "rule": "Screen/monitor = 'skíggi' (k2) in Faroese. 'skjá' is Icelandic. Use 'tóman skíggja' (acc) for 'empty screen'.",
+      "examples": {
+        "wrong": "opnaði ein tóman skjá",
+        "correct": "opnaði ein tóman skíggja",
+        "explanation": "skíggi (k2): nom=skíggi, acc=skíggja. 'skjá' is not standard Faroese."
+      }
+    },
+    "fiskivinna_not_fiskavinnsla": {
+      "rule": "'fiskivinna' (kv1e) is the correct word for fish processing/industry. NOT 'fiskavinnsla'. Plural: 'fiskivinnur'.",
+      "examples": {
+        "wrong": "fyri fiskavinnslur",
+        "correct": "fyri fiskivinnur"
+      }
+    }
+  },
+
+  "faroese_terminology": {
+    "_note": "Established Faroese terms for modern concepts",
+    "ai": "vitlíki",
+    "artificial_intelligence": "vitlíki",
+    "it": "KT (kunningartøkni)",
+    "computer": "telda",
+    "software": "ritbúnaður",
+    "smart_solutions": "snildar loysnir (snildur = clever for things, not vitugur which is for people)",
+    "vitugur_note": "vitugur means wise/intelligent about a PERSON. For things/solutions use snildur."
+  }
+}

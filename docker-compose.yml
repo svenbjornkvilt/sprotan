@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  mcp:
+    build: .
+    image: sprotan-mcp
+    # stdio mode (default) — for local Claude Code
+    # Override command for HTTP mode:
+    #   docker compose run mcp python3 mcp_server.py --transport http
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount DB from host (optional — image includes a copy)
+      # - ./db/sprotin.db:/app/db/sprotin.db:ro
+      []

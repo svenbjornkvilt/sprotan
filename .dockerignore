@@ -1,0 +1,14 @@
+.venv/
+.git/
+__pycache__/
+*.pyc
+data/raw/
+data/raw_en_fo/
+data/raw_fo_en/
+data/processed/
+data/processed_en_fo/
+data/processed_fo_en/
+tools/
+/tmp/
+*.output
+.claude/

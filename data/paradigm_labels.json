@@ -1,0 +1,61 @@
+{
+  "_source": "Extracted from sprotin.fo fm.dictionary.jquery.js — the exact form_index to grammar label mapping used by the website",
+  "_note": "The mapping is based on InflectedForm array length: 6=verbs, 16=nouns, 24=adjectives",
+
+  "verb_6": {
+    "0": {"label": "Navnháttur", "label_en": "infinitive"},
+    "1": {"label": "3. pers. eintal nútíð", "label_en": "3sg.pres"},
+    "2": {"label": "eintal tátíð", "label_en": "sg.past"},
+    "3": {"label": "fleirtal tátíð", "label_en": "pl.past"},
+    "4": {"label": "lýsingarháttur tátíð", "label_en": "past.part"},
+    "5": {"label": "lýsingarháttur tátíð, kallkyn hvørfall", "label_en": "past.part.m.nom"}
+  },
+
+  "noun_16": {
+    "_structure": "index 0-7 = indefinite, index 8-15 = definite. Within each: sg(nom,acc,dat,gen) then pl(nom,acc,dat,gen)",
+    "0":  {"label": "eintal hvørfall óbundið", "label_en": "sg.nom.indef"},
+    "1":  {"label": "eintal hvønnfall óbundið", "label_en": "sg.acc.indef"},
+    "2":  {"label": "eintal hvørjumfall óbundið", "label_en": "sg.dat.indef"},
+    "3":  {"label": "eintal hvørsfall óbundið", "label_en": "sg.gen.indef"},
+    "4":  {"label": "fleirtal hvørfall óbundið", "label_en": "pl.nom.indef"},
+    "5":  {"label": "fleirtal hvønnfall óbundið", "label_en": "pl.acc.indef"},
+    "6":  {"label": "fleirtal hvørjumfall óbundið", "label_en": "pl.dat.indef"},
+    "7":  {"label": "fleirtal hvørsfall óbundið", "label_en": "pl.gen.indef"},
+    "8":  {"label": "eintal hvørfall bundið", "label_en": "sg.nom.def"},
+    "9":  {"label": "eintal hvønnfall bundið", "label_en": "sg.acc.def"},
+    "10": {"label": "eintal hvørjumfall bundið", "label_en": "sg.dat.def"},
+    "11": {"label": "eintal hvørsfall bundið", "label_en": "sg.gen.def"},
+    "12": {"label": "fleirtal hvørfall bundið", "label_en": "pl.nom.def"},
+    "13": {"label": "fleirtal hvønnfall bundið", "label_en": "pl.acc.def"},
+    "14": {"label": "fleirtal hvørjumfall bundið", "label_en": "pl.dat.def"},
+    "15": {"label": "fleirtal hvørsfall bundið", "label_en": "pl.gen.def"}
+  },
+
+  "adjective_24": {
+    "_structure": "index 0-7 = masculine, index 8-15 = feminine, index 16-23 = neuter. Within each: sg(nom,acc,dat,gen) then pl(nom,acc,dat,gen)",
+    "0":  {"label": "kallkyn eintal hvørfall", "label_en": "m.sg.nom"},
+    "1":  {"label": "kallkyn eintal hvønnfall", "label_en": "m.sg.acc"},
+    "2":  {"label": "kallkyn eintal hvørjumfall", "label_en": "m.sg.dat"},
+    "3":  {"label": "kallkyn eintal hvørsfall", "label_en": "m.sg.gen"},
+    "4":  {"label": "kallkyn fleirtal hvørfall", "label_en": "m.pl.nom"},
+    "5":  {"label": "kallkyn fleirtal hvønnfall", "label_en": "m.pl.acc"},
+    "6":  {"label": "kallkyn fleirtal hvørjumfall", "label_en": "m.pl.dat"},
+    "7":  {"label": "kallkyn fleirtal hvørsfall", "label_en": "m.pl.gen"},
+    "8":  {"label": "kvennkyn eintal hvørfall", "label_en": "f.sg.nom"},
+    "9":  {"label": "kvennkyn eintal hvønnfall", "label_en": "f.sg.acc"},
+    "10": {"label": "kvennkyn eintal hvørjumfall", "label_en": "f.sg.dat"},
+    "11": {"label": "kvennkyn eintal hvørsfall", "label_en": "f.sg.gen"},
+    "12": {"label": "kvennkyn fleirtal hvørfall", "label_en": "f.pl.nom"},
+    "13": {"label": "kvennkyn fleirtal hvønnfall", "label_en": "f.pl.acc"},
+    "14": {"label": "kvennkyn fleirtal hvørjumfall", "label_en": "f.pl.dat"},
+    "15": {"label": "kvennkyn fleirtal hvørsfall", "label_en": "f.pl.gen"},
+    "16": {"label": "hvørkikyn eintal hvørfall", "label_en": "n.sg.nom"},
+    "17": {"label": "hvørkikyn eintal hvønnfall", "label_en": "n.sg.acc"},
+    "18": {"label": "hvørkikyn eintal hvørjumfall", "label_en": "n.sg.dat"},
+    "19": {"label": "hvørkikyn eintal hvørsfall", "label_en": "n.sg.gen"},
+    "20": {"label": "hvørkikyn fleirtal hvørfall", "label_en": "n.pl.nom"},
+    "21": {"label": "hvørkikyn fleirtal hvønnfall", "label_en": "n.pl.acc"},
+    "22": {"label": "hvørkikyn fleirtal hvørjumfall", "label_en": "n.pl.dat"},
+    "23": {"label": "hvørkikyn fleirtal hvørsfall", "label_en": "n.pl.gen"}
+  }
+}
