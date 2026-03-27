@@ -31,12 +31,13 @@ jobs:
 
       - name: Download database from Azure Blob Storage
         run: |
+          ACCOUNT_KEY=$(az storage account keys list --account-name ${{ env.STORAGE_ACCOUNT }} --resource-group ${{ env.RESOURCE_GROUP }} --query "[0].value" -o tsv)
           az storage blob download \
             --account-name ${{ env.STORAGE_ACCOUNT }} \
             --container-name ${{ env.STORAGE_CONTAINER }} \
             --name sprotin.db \
             --file db/sprotin.db \
-            --auth-mode login
+            --account-key "$ACCOUNT_KEY"
 
       - name: Build and push Docker image
         run: |
