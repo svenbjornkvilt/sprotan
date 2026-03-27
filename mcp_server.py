@@ -48,6 +48,7 @@ log.info(f"Generator: {_GENERATOR or 'NOT FOUND'}")
 
 mcp = FastMCP(
     "faroese-dictionary",
+    host="0.0.0.0",
     instructions=(
         "Faroese dictionary MCP server with HFST morphological engine.\n\n"
         "CRITICAL RULES — When writing Faroese:\n"
