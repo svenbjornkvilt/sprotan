@@ -1,0 +1,3 @@
+sprotan.northeurope.azurecontainer.io {
+	reverse_proxy localhost:8080
+}

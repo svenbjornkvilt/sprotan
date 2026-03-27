@@ -1,0 +1,51 @@
+apiVersion: 2021-09-01
+location: northeurope
+name: sprotan-mcp
+properties:
+  containers:
+    - name: sprotan-mcp
+      properties:
+        image: __IMAGE__
+        command: ["python3", "mcp_server.py", "--transport", "http"]
+        resources:
+          requests:
+            cpu: 1
+            memoryInGb: 2
+        ports:
+          - port: 8080
+
+    - name: caddy
+      properties:
+        image: __ACR_SERVER__/caddy:2-alpine
+        command:
+          - caddy
+          - reverse-proxy
+          - --from
+          - sprotan.northeurope.azurecontainer.io
+          - --to
+          - localhost:8080
+        resources:
+          requests:
+            cpu: 0.5
+            memoryInGb: 0.5
+        ports:
+          - port: 443
+          - port: 80
+
+  ipAddress:
+    type: Public
+    dnsNameLabel: sprotan
+    ports:
+      - protocol: TCP
+        port: 443
+      - protocol: TCP
+        port: 80
+
+  osType: Linux
+
+  imageRegistryCredentials:
+    - server: __ACR_SERVER__
+      username: __ACR_USERNAME__
+      password: __ACR_PASSWORD__
+
+type: Microsoft.ContainerInstance/containerGroups

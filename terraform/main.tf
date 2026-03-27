@@ -34,7 +34,7 @@ resource "azurerm_container_registry" "main" {
   admin_enabled       = true
 }
 
-# Container Instance
+# Container Instance with Caddy HTTPS sidecar
 resource "azurerm_container_group" "main" {
   name                = "${var.prefix}-mcp"
   location            = azurerm_resource_group.main.location
@@ -47,6 +47,7 @@ resource "azurerm_container_group" "main" {
     password = azurerm_container_registry.main.admin_password
   }
 
+  # MCP Server
   container {
     name   = "sprotan-mcp"
     image  = "${azurerm_container_registry.main.login_server}/sprotan-mcp:latest"
@@ -61,6 +62,30 @@ resource "azurerm_container_group" "main" {
     commands = ["python3", "mcp_server.py", "--transport", "http"]
   }
 
+  # Caddy HTTPS reverse proxy
+  container {
+    name   = "caddy"
+    image  = "caddy:2-alpine"
+    cpu    = "0.5"
+    memory = "0.5"
+
+    ports {
+      port     = 443
+      protocol = "TCP"
+    }
+
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
+
+    commands = [
+      "caddy", "reverse-proxy",
+      "--from", "${var.prefix}.northeurope.azurecontainer.io",
+      "--to", "localhost:8080"
+    ]
+  }
+
   ip_address_type = "Public"
   dns_name_label  = var.prefix
 
@@ -72,7 +97,7 @@ resource "azurerm_container_group" "main" {
 
 # Outputs
 output "mcp_url" {
-  value = "https://${azurerm_container_group.main.fqdn}:8080/sse"
+  value = "https://${azurerm_container_group.main.fqdn}/sse"
 }
 
 output "acr_login_server" {

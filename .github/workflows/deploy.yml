@@ -9,7 +9,6 @@ env:
   ACR_NAME: sprotanacr
   IMAGE_NAME: sprotan-mcp
   RESOURCE_GROUP: sprotan-rg
-  CONTAINER_NAME: sprotan-mcp
 
 jobs:
   build-and-deploy:
@@ -35,16 +34,20 @@ jobs:
 
       - name: Deploy to Azure Container Instances
         run: |
-          az container create \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --name ${{ env.CONTAINER_NAME }} \
-            --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            --registry-login-server ${{ env.ACR_NAME }}.azurecr.io \
-            --registry-username $(az acr credential show --name ${{ env.ACR_NAME }} --query username -o tsv) \
-            --registry-password $(az acr credential show --name ${{ env.ACR_NAME }} --query "passwords[0].value" -o tsv) \
-            --ports 8080 \
-            --cpu 1 \
-            --memory 2 \
-            --dns-name-label sprotan \
-            --command-line "python3 mcp_server.py --transport http" \
-            --os-type Linux
+          ACR_SERVER="${{ env.ACR_NAME }}.azurecr.io"
+          ACR_USERNAME=$(az acr credential show --name ${{ env.ACR_NAME }} --query username -o tsv)
+          ACR_PASSWORD=$(az acr credential show --name ${{ env.ACR_NAME }} --query "passwords[0].value" -o tsv)
+          IMAGE="${ACR_SERVER}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+
+          # Fill in deployment template
+          sed -e "s|__IMAGE__|${IMAGE}|g" \
+              -e "s|__ACR_SERVER__|${ACR_SERVER}|g" \
+              -e "s|__ACR_USERNAME__|${ACR_USERNAME}|g" \
+              -e "s|__ACR_PASSWORD__|${ACR_PASSWORD}|g" \
+              deploy/aci.yaml > /tmp/aci-deploy.yaml
+
+          # Delete existing container group (ACI can't update multi-container groups in-place)
+          az container delete --resource-group ${{ env.RESOURCE_GROUP }} --name sprotan-mcp --yes 2>/dev/null || true
+
+          # Deploy with Caddy HTTPS sidecar
+          az container create --resource-group ${{ env.RESOURCE_GROUP }} --file /tmp/aci-deploy.yaml
