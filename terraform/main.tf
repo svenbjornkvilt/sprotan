@@ -95,6 +95,26 @@ resource "azurerm_container_group" "main" {
   }
 }
 
+# Storage Account for DB artifact
+resource "azurerm_storage_account" "main" {
+  name                     = "${var.prefix}stor"
+  resource_group_name      = azurerm_resource_group.main.name
+  location                 = azurerm_resource_group.main.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  tags = {
+    environment = "production"
+    project     = "sprotan"
+  }
+}
+
+resource "azurerm_storage_container" "data" {
+  name                  = "data"
+  storage_account_name  = azurerm_storage_account.main.name
+  container_access_type = "private"
+}
+
 # Outputs
 output "mcp_url" {
   value = "https://${azurerm_container_group.main.fqdn}/mcp"
@@ -102,4 +122,8 @@ output "mcp_url" {
 
 output "acr_login_server" {
   value = azurerm_container_registry.main.login_server
+}
+
+output "storage_account_name" {
+  value = azurerm_storage_account.main.name
 }

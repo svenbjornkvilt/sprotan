@@ -9,6 +9,11 @@ env:
   ACR_NAME: sprotanacr
   IMAGE_NAME: sprotan-mcp
   RESOURCE_GROUP: sprotan-rg
+  # Storage account created by Terraform (sprotan + stor = sprotanstor)
+  # To upload the DB initially:
+  #   az storage blob upload --account-name sprotanstor --container-name data --name sprotin.db --file db/sprotin.db
+  STORAGE_ACCOUNT: sprotanstor
+  STORAGE_CONTAINER: data
 
 jobs:
   build-and-deploy:
@@ -23,6 +28,15 @@ jobs:
 
       - name: Login to ACR
         run: az acr login --name ${{ env.ACR_NAME }}
+
+      - name: Download database from Azure Blob Storage
+        run: |
+          az storage blob download \
+            --account-name ${{ env.STORAGE_ACCOUNT }} \
+            --container-name ${{ env.STORAGE_CONTAINER }} \
+            --name sprotin.db \
+            --file db/sprotin.db \
+            --auth-mode login
 
       - name: Build and push Docker image
         run: |
