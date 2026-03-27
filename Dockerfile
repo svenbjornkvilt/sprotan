@@ -33,10 +33,13 @@ RUN TERM=dumb ./autogen.sh
 RUN ./configure --enable-analysers --enable-generators
 RUN make -j$(nproc)
 
-# Collect built transducers
+# Collect built transducers and CG3 disambiguator
 RUN mkdir -p /opt/transducers && \
     find /opt/lang-fao -name "*.hfstol" -exec cp {} /opt/transducers/ \; && \
     find /opt/lang-fao -name "*.pmhfst" -exec cp {} /opt/transducers/ \; && \
+    find /opt/lang-fao/src/cg3 -name "disambiguator.cg3" -exec cp {} /opt/transducers/ \; && \
+    find /opt/lang-fao/src/cg3 -name "functions.cg3" -exec cp {} /opt/transducers/ \; && \
+    cg-comp /opt/transducers/disambiguator.cg3 /opt/transducers/disambiguator.bin && \
     ls -la /opt/transducers/
 
 # ── Runtime image ─────────────────────────────────────────────────────────
