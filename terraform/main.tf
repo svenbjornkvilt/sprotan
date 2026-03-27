@@ -97,7 +97,7 @@ resource "azurerm_container_group" "main" {
 
 # Outputs
 output "mcp_url" {
-  value = "https://${azurerm_container_group.main.fqdn}/sse"
+  value = "https://${azurerm_container_group.main.fqdn}/mcp"
 }
 
 output "acr_login_server" {
