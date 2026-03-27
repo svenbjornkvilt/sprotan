@@ -14,6 +14,7 @@ import logging
 import os
 import re
 import sqlite3
+import subprocess
 import sys
 import urllib.request
 from typing import Any
@@ -156,7 +157,6 @@ def _hfst_analyse(word: str) -> list[str]:
     if not os.path.exists(_HFST_LOOKUP) or not _ANALYSER or not os.path.exists(_ANALYSER):
         return []
     try:
-        import subprocess
         result = subprocess.run(
             [_HFST_LOOKUP, "-q", _ANALYSER],
             input=word + "\n",
@@ -171,6 +171,251 @@ def _hfst_analyse(word: str) -> list[str]:
         return analyses
     except Exception:
         return []
+
+
+# ── HFST+CG3 pipeline (full morphological analysis + disambiguation) ──────
+
+_VISLCG3 = None
+_DISAMBIGUATOR = None
+for _p in [os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools", "bin", "vislcg3"),
+           "/usr/local/bin/vislcg3", "/usr/bin/vislcg3"]:
+    if os.path.exists(_p):
+        _VISLCG3 = _p
+        break
+for _p in [os.path.join(TOOLS_DIR, "disambiguator.bin"),
+           os.path.join(TOOLS_DIR, "grc-disambiguator.bin")]:
+    if os.path.exists(_p):
+        _DISAMBIGUATOR = _p
+        break
+
+log.info(f"CG3: {_VISLCG3 or 'NOT FOUND'}  Disamb: {_DISAMBIGUATOR or 'NOT FOUND'}")
+
+
+def _hfst_analyse_batch(tokens: list[str]) -> dict[str, list[str]]:
+    """Analyse multiple tokens with HFST in one call."""
+    if not _ANALYSER or not os.path.exists(_HFST_LOOKUP):
+        return {}
+    try:
+        input_str = "\n".join(tokens) + "\n"
+        result = subprocess.run(
+            [_HFST_LOOKUP, "-q", _ANALYSER],
+            input=input_str, capture_output=True, text=True, timeout=15,
+        )
+        by_token: dict[str, list[str]] = {}
+        if result.returncode == 0:
+            for line in result.stdout.strip().split("\n"):
+                if not line.strip():
+                    continue
+                parts = line.split("\t")
+                if len(parts) >= 2:
+                    surface, analysis = parts[0], parts[1]
+                    if surface not in by_token:
+                        by_token[surface] = []
+                    if "+?" not in analysis and analysis != surface:
+                        by_token[surface].append(analysis)
+        return by_token
+    except Exception as e:
+        log.warning(f"HFST batch analyse failed: {e}")
+        return {}
+
+
+def _build_cg3_input(tokens: list[str], analyses: dict[str, list[str]]) -> str:
+    """Build CG3 cohort format from HFST analyses."""
+    lines = []
+    for tok in tokens:
+        lines.append(f'"<{tok}>"')
+        token_analyses = analyses.get(tok, [])
+        if not token_analyses:
+            lines.append(f'\t"{tok}" ?')
+        for a in token_analyses:
+            parts = a.split("+")
+            lemma = parts[0]
+            tags = " ".join(parts[1:])
+            lines.append(f'\t"{lemma}" {tags}')
+    return "\n".join(lines) + "\n"
+
+
+def _cg3_disambiguate(cg3_input: str) -> str | None:
+    """Run CG3 disambiguator. Returns disambiguated cohort text or None."""
+    if not _VISLCG3 or not _DISAMBIGUATOR:
+        return None
+    try:
+        result = subprocess.run(
+            [_VISLCG3, "-g", _DISAMBIGUATOR],
+            input=cg3_input, capture_output=True, text=True, timeout=10,
+        )
+        if result.returncode == 0:
+            return result.stdout
+        return None
+    except Exception as e:
+        log.warning(f"CG3 disambiguation failed: {e}")
+        return None
+
+
+def _parse_cg3_output(cg3_output: str) -> list[dict]:
+    """Parse CG3 cohort output into structured list.
+    Returns list of {surface, lemma, pos, tags: set} per token."""
+    result = []
+    current: dict | None = None
+    for line in cg3_output.strip().split("\n"):
+        line = line.strip()
+        if line.startswith('"<') and line.endswith('>"'):
+            if current:
+                result.append(current)
+            surface = line[2:-2]
+            current = {"surface": surface, "readings": []}
+        elif line.startswith('"') and current is not None:
+            # Parse: "lemma" Tag1 Tag2 Tag3 ...
+            m = re.match(r'"([^"]*)"(.*)', line)
+            if m:
+                lemma = m.group(1)
+                tag_str = m.group(2).strip()
+                tags = set(tag_str.split()) if tag_str else set()
+                pos = ""
+                for t in ["N", "V", "A", "Adv", "Pron", "Det", "Num", "CC", "CS", "Pr"]:
+                    if t in tags:
+                        pos = t
+                        tags.discard(t)
+                        break
+                current["readings"].append({
+                    "lemma": lemma, "pos": pos, "tags": tags,
+                })
+    if current:
+        result.append(current)
+    return result
+
+
+def _analyse_text_full(text: str) -> list[dict]:
+    """Full pipeline: tokenise → HFST analyse → CG3 disambiguate → parsed output."""
+    tokens = [t for t in re.findall(r"\w+", text) if len(t) > 0]
+    if not tokens:
+        return []
+
+    analyses = _hfst_analyse_batch(tokens)
+    cg3_input = _build_cg3_input(tokens, analyses)
+    cg3_output = _cg3_disambiguate(cg3_input)
+
+    if cg3_output:
+        return _parse_cg3_output(cg3_output)
+
+    # Fallback: return raw HFST analyses without disambiguation
+    result = []
+    for tok in tokens:
+        readings = []
+        for a in analyses.get(tok, []):
+            parts = a.split("+")
+            lemma = parts[0]
+            all_tags = set(parts[1:])
+            pos = ""
+            for t in ["N", "V", "A", "Adv", "Pron", "Det", "Num", "CC", "CS", "Pr"]:
+                if t in all_tags:
+                    pos = t
+                    all_tags.discard(t)
+                    break
+            readings.append({"lemma": lemma, "pos": pos, "tags": all_tags})
+        result.append({"surface": tok, "readings": readings})
+    return result
+
+
+_GENDER_TAG = {"Msc": "m", "Fem": "f", "Neu": "n"}
+_CASE_TAG = {"Nom": "nom", "Acc": "acc", "Dat": "dat", "Gen": "gen"}
+_NUMBER_TAG = {"Sg": "sg", "Pl": "pl"}
+
+
+def _extract_features(reading: dict) -> dict:
+    """Extract gender, case, number from a reading's tags."""
+    tags = reading["tags"]
+    feat: dict[str, str | None] = {"gender": None, "case": None, "number": None}
+    for t in tags:
+        if t in _GENDER_TAG:
+            feat["gender"] = _GENDER_TAG[t]
+        elif t in _CASE_TAG:
+            feat["case"] = _CASE_TAG[t]
+        elif t in _NUMBER_TAG:
+            feat["number"] = _NUMBER_TAG[t]
+    return feat
+
+
+def _check_agreement_hfst(parsed: list[dict]) -> list[dict]:
+    """Check gender/case/number agreement using disambiguated HFST output."""
+    issues = []
+
+    for i, token in enumerate(parsed):
+        if not token["readings"]:
+            continue
+        r = token["readings"][0]  # disambiguated = usually 1 reading
+        feat = _extract_features(r)
+
+        # Det/Pron + Noun gender agreement
+        if r["pos"] in ("Det", "Pron", "Num") and feat["gender"] and i + 1 < len(parsed):
+            # Look ahead for noun (may have adjective in between)
+            for j in range(i + 1, min(i + 4, len(parsed))):
+                nxt = parsed[j]
+                if not nxt["readings"]:
+                    break
+                nr = nxt["readings"][0]
+                nf = _extract_features(nr)
+                if nr["pos"] == "N" and nf["gender"]:
+                    if feat["gender"] != nf["gender"]:
+                        gl = {"m": "masculine", "f": "feminine", "n": "neuter"}
+                        issues.append({
+                            "source": "hfst_cg3", "type": "determiner_noun_gender",
+                            "word": f"{token['surface']} ... {nxt['surface']}",
+                            "message": f"'{token['surface']}' is {gl[feat['gender']]}, but '{nr['lemma']}' is {gl[nf['gender']]}.",
+                        })
+                    break
+                elif nr["pos"] == "A":
+                    continue  # skip adjectives between det and noun
+                else:
+                    break
+
+        # Adjective + Noun gender agreement
+        if r["pos"] == "A" and feat["gender"] and i + 1 < len(parsed):
+            nxt = parsed[i + 1]
+            if nxt["readings"]:
+                nr = nxt["readings"][0]
+                nf = _extract_features(nr)
+                if nr["pos"] == "N" and nf["gender"] and feat["gender"] != nf["gender"]:
+                    gl = {"m": "masculine", "f": "feminine", "n": "neuter"}
+                    issues.append({
+                        "source": "hfst_cg3", "type": "adjective_noun_gender",
+                        "word": f"{token['surface']} {nxt['surface']}",
+                        "message": f"'{token['surface']}' is {gl[feat['gender']]}, but '{nr['lemma']}' is {gl[nf['gender']]}.",
+                    })
+
+        # Noun/Pron + var/er + Adjective gender agreement
+        if r["pos"] == "V" and r["lemma"] == "vera" and feat.get("gender") is None:
+            if i >= 1 and i + 1 < len(parsed):
+                subj = parsed[i - 1]
+                pred = parsed[i + 1]
+                if subj["readings"] and pred["readings"]:
+                    sr = subj["readings"][0]
+                    pr = pred["readings"][0]
+                    sf = _extract_features(sr)
+                    pf = _extract_features(pr)
+                    if sr["pos"] in ("N", "Pron") and pr["pos"] == "A":
+                        if sf["gender"] and pf["gender"] and sf["gender"] != pf["gender"]:
+                            gl = {"m": "masculine", "f": "feminine", "n": "neuter"}
+                            issues.append({
+                                "source": "hfst_cg3", "type": "predicate_adjective_gender",
+                                "word": f"{subj['surface']} {token['surface']} {pred['surface']}",
+                                "message": f"Subject '{subj['surface']}' is {gl[sf['gender']]}, but '{pred['surface']}' is {gl[pf['gender']]}.",
+                            })
+
+        # Adjective + Noun case agreement
+        if r["pos"] == "A" and feat["case"] and i + 1 < len(parsed):
+            nxt = parsed[i + 1]
+            if nxt["readings"]:
+                nr = nxt["readings"][0]
+                nf = _extract_features(nr)
+                if nr["pos"] == "N" and nf["case"] and feat["case"] != nf["case"]:
+                    issues.append({
+                        "source": "hfst_cg3", "type": "adjective_noun_case",
+                        "word": f"{token['surface']} {nxt['surface']}",
+                        "message": f"'{token['surface']}' is {feat['case']}, but '{nr['lemma']}' is {nf['case']}.",
+                    })
+
+    return issues
 
 
 # ── Grammar rules (verb conjugation, pronouns, adjective declension) ──────
@@ -862,7 +1107,14 @@ def review(text: str) -> dict[str, Any]:
                     spelling_issues.append(entry)
                     seen_words.add(word.lower())
 
-    # ── GRAMMAR: local checks + GiellaLT grammar ──
+    # ── GRAMMAR: HFST+CG3 pipeline (primary) + local checks (fallback) ──
+    if _ANALYSER and _VISLCG3 and _DISAMBIGUATOR:
+        parsed = _analyse_text_full(text)
+        hfst_issues = _check_agreement_hfst(parsed)
+        for issue in hfst_issues:
+            grammar_issues.append(issue)
+            seen_words.add(issue.get("word", "").lower())
+
     _do_grammar_checks(text, grammar_issues, seen_words)
 
     # GiellaLT grammar API
@@ -981,6 +1233,19 @@ _ADJ_INDEX_GENDER = {
     16: "n", 17: "n", 18: "n", 19: "n", 20: "n", 21: "n", 22: "n", 23: "n",
 }
 
+_WORD_CLASS_GENDER = {"k": "m", "kv": "f", "h": "n"}
+_GENDER_LABEL = {"m": "masculine", "f": "feminine", "n": "neuter"}
+
+_DETERMINER_GENDER: dict[str, str] = {
+    "hvønn": "m", "hvørja": "f", "hvørt": "n", "hvat": "n",
+    "hasin": "m", "hasi": "n", "hasa": "f",
+    "hesin": "m", "hesi": "n", "hesa": "f",
+    "tann": "m", "ta": "f", "tað": "n",
+    "nakran": "m", "nakra": "f", "nakað": "n",
+    "ongan": "m", "onga": "f", "onki": "n",
+    "allan": "m", "alla": "f", "alt": "n",
+}
+
 _WORD_BLACKLIST: dict[str, str] = {
     "skjá": "skíggi (k2) — 'skjá' is Icelandic, not Faroese",
 }
@@ -1053,21 +1318,25 @@ def _do_grammar_checks(text: str, grammar_issues: list, seen_words: set) -> None
                             })
                         break
 
-                # Pronoun + var/er + adjective gender
+                # Subject + var/er + adjective gender (pronoun or noun subject)
                 if lower in ("var", "er") and i >= 1 and i + 1 < len(tokens):
                     prev = lower_tokens[i - 1]
                     gender = _PRONOUN_GENDER.get(prev)
+                    # If not a pronoun, check if previous token is a noun
+                    if gender is None:
+                        prev_nouns = [x for x in identified[i - 1] if x["type"] == "noun"]
+                        if prev_nouns:
+                            gender = _WORD_CLASS_GENDER.get(prev_nouns[0].get("word_class", ""))
                     if gender in ("m", "f", "n"):
                         next_adjs = [x for x in identified[i + 1]
                                      if x.get("type") == "adjective" and x.get("form_index", -1) >= 0]
                         for adj in next_adjs:
                             adj_gender = _ADJ_INDEX_GENDER.get(adj["form_index"])
                             if adj_gender and adj_gender != gender:
-                                expected = {"m": "masculine", "f": "feminine", "n": "neuter"}
                                 grammar_issues.append({
                                     "source": "local", "type": "adjective_gender",
                                     "word": tokens[i + 1],
-                                    "message": f"'{prev} {lower} {tokens[i+1]}' — subject is {expected[gender]}, adj is {expected.get(adj_gender, '?')}.",
+                                    "message": f"'{tokens[i-1]} {lower} {tokens[i+1]}' — subject is {_GENDER_LABEL[gender]}, adj is {_GENDER_LABEL.get(adj_gender, '?')}.",
                                 })
                             break
 
@@ -1106,6 +1375,67 @@ def _do_grammar_checks(text: str, grammar_issues: list, seen_words: set) -> None
                         "source": "local", "type": "word_confusion", "word": tok,
                         "message": f"'{tok} um' — 'hugdi' = looked. 'hugsaði um' = thought.",
                     })
+
+                # Determiner/pronoun + noun gender agreement
+                det_gender = _DETERMINER_GENDER.get(lower)
+                if det_gender and i + 1 < len(tokens):
+                    for j in range(i + 1, min(i + 4, len(tokens))):
+                        nns = [x for x in identified[j] if x["type"] == "noun"]
+                        if nns:
+                            nn = nns[0]
+                            noun_gender = _WORD_CLASS_GENDER.get(nn.get("word_class", ""))
+                            if noun_gender and noun_gender != det_gender:
+                                grammar_issues.append({
+                                    "source": "local", "type": "determiner_gender",
+                                    "word": f"{tok} {tokens[j]}",
+                                    "message": f"'{tok}' is {_GENDER_LABEL[det_gender]}, but '{nn['headword']}' is {_GENDER_LABEL[noun_gender]}.",
+                                })
+                            break
+                        # skip adjectives between determiner and noun
+                        adjs = [x for x in identified[j] if x.get("type") == "adjective"]
+                        if not adjs:
+                            break
+
+                # Adjective + noun gender/case agreement
+                adj_ids = [x for x in ids if x.get("type") == "adjective" and x.get("form_index", -1) >= 0]
+                if adj_ids and i + 1 < len(tokens):
+                    for j in range(i + 1, min(i + 3, len(tokens))):
+                        nns = [x for x in identified[j] if x["type"] == "noun"]
+                        if nns:
+                            noun = nns[0]
+                            noun_gender = _WORD_CLASS_GENDER.get(noun.get("word_class", ""))
+                            noun_fi = noun.get("form_index", -1)
+                            if noun_gender and noun_fi >= 0:
+                                # noun case_offset: position within 8-slot block (sg+pl, nom/acc/dat/gen)
+                                noun_case_offset = noun_fi % 8
+                                # Check if any adj form matches both gender AND case
+                                matched = False
+                                for a in adj_ids:
+                                    ag = _ADJ_INDEX_GENDER.get(a["form_index"])
+                                    a_case_offset = a["form_index"] % 8
+                                    if ag == noun_gender and a_case_offset == noun_case_offset:
+                                        matched = True
+                                        break
+                                if not matched:
+                                    # Also check second noun interpretation (e.g. nom vs acc)
+                                    if len(nns) > 1:
+                                        n2 = nns[1]
+                                        n2_fi = n2.get("form_index", -1)
+                                        if n2_fi >= 0:
+                                            n2_offset = n2_fi % 8
+                                            for a in adj_ids:
+                                                ag = _ADJ_INDEX_GENDER.get(a["form_index"])
+                                                if ag == noun_gender and a["form_index"] % 8 == n2_offset:
+                                                    matched = True
+                                                    break
+                                if not matched:
+                                    grammar_issues.append({
+                                        "source": "local", "type": "adjective_noun_gender",
+                                        "word": f"{tok} {tokens[j]}",
+                                        "message": f"'{tok}' doesn't agree with '{noun['headword']}' ({_GENDER_LABEL[noun_gender]}).",
+                                    })
+                            break
+                        break  # only look at immediate next token
 
                 # Blacklisted words
                 if lower in _WORD_BLACKLIST:
