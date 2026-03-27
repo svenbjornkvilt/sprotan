@@ -570,7 +570,9 @@ def main():
     log.info(f"Analyser: {'✓' if _ANALYSER else '✗'}  Generator: {'✓' if _GENERATOR else '✗'}")
 
     if transport == "http":
-        mcp.run(transport="sse", host="0.0.0.0", port=8080)
+        import uvicorn
+        mcp_app = mcp.sse_app()
+        uvicorn.run(mcp_app, host="0.0.0.0", port=8080)
     else:
         mcp.run(transport="stdio")
 

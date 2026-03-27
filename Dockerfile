@@ -54,7 +54,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-RUN pip install --no-cache-dir --break-system-packages mcp>=1.0.0
+RUN pip install --no-cache-dir --break-system-packages "mcp>=1.0.0" uvicorn starlette
 
 # Copy transducers from builder
 COPY --from=builder /opt/transducers/ /app/tools/giellalt/
