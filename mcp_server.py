@@ -106,9 +106,12 @@ def _giellalt_gramcheck(text: str) -> dict | None:
 
 # ── HFST transducers (GiellaLT morphological analysis + generation) ────────
 
-_HFST_LOOKUP = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "tools", "bin", "hfst-optimized-lookup"
-)
+_HFST_LOOKUP = None
+for _p in [os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools", "bin", "hfst-optimized-lookup"),
+           "/usr/local/bin/hfst-optimized-lookup", "/usr/bin/hfst-optimized-lookup"]:
+    if os.path.exists(_p):
+        _HFST_LOOKUP = _p
+        break
 
 # Discover analyser and generator transducers by scanning TOOLS_DIR
 _ANALYSER = None
@@ -126,6 +129,7 @@ if not _GENERATOR:
     if os.path.exists(_fallback):
         _GENERATOR = _fallback
 
+log.info(f"HFST lookup: {_HFST_LOOKUP or 'NOT FOUND'}")
 log.info(f"Analyser: {_ANALYSER or 'NOT FOUND'}")
 log.info(f"Generator: {_GENERATOR or 'NOT FOUND'}")
 
@@ -133,7 +137,7 @@ log.info(f"Generator: {_GENERATOR or 'NOT FOUND'}")
 def _hfst_generate(analysis: str) -> str | None:
     """Run HFST generator to produce a surface form from morphological tags.
     Returns the generated form, or None if generation fails."""
-    if not os.path.exists(_HFST_LOOKUP) or not _GENERATOR or not os.path.exists(_GENERATOR):
+    if not _HFST_LOOKUP or not _GENERATOR:
         return None
     try:
         import subprocess
@@ -154,7 +158,7 @@ def _hfst_generate(analysis: str) -> str | None:
 
 def _hfst_analyse(word: str) -> list[str]:
     """Run HFST analyser on a single word. Returns list of analysis strings."""
-    if not os.path.exists(_HFST_LOOKUP) or not _ANALYSER or not os.path.exists(_ANALYSER):
+    if not _HFST_LOOKUP or not _ANALYSER:
         return []
     try:
         result = subprocess.run(
@@ -193,7 +197,7 @@ log.info(f"CG3: {_VISLCG3 or 'NOT FOUND'}  Disamb: {_DISAMBIGUATOR or 'NOT FOUND
 
 def _hfst_analyse_batch(tokens: list[str]) -> dict[str, list[str]]:
     """Analyse multiple tokens with HFST in one call."""
-    if not _ANALYSER or not os.path.exists(_HFST_LOOKUP):
+    if not _HFST_LOOKUP or not _ANALYSER:
         return {}
     try:
         input_str = "\n".join(tokens) + "\n"
