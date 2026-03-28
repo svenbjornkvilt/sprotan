@@ -45,23 +45,28 @@ mcp = FastMCP(
     "faroese-dictionary",
     host="0.0.0.0",
     instructions=(
-        "Faroese dictionary MCP server with 67,000+ words from sprotin.fo. "
-        "\n\n"
-        "RULES — When writing Faroese:\n"
-        "- Do NOT guess words. If unsure, look it up or keep the original.\n"
+        "Faroese dictionary MCP server with 67,000+ words from sprotin.fo.\n\n"
+        "CRITICAL RULES — When writing Faroese:\n"
+        "- NEVER guess words. ALWAYS look up EVERY word you are unsure about.\n"
+        "- NEVER use Danish words. Faroese is NOT Danish. Common mistakes:\n"
+        "  leverandør→biðil, faktura→rokningur, misforhold→misvæga,\n"
+        "  primo→upphavsstaða, forhold→viðurskifti, beløb→upphædd.\n"
+        "- NEVER invent compound words. If you can't find it, rephrase.\n"
         "- Do NOT translate word-for-word. Write natural Faroese.\n"
-        "- Prefer everyday words over formal/literary ones.\n"
-        "\n"
-        "WORKFLOW — When writing Faroese:\n"
-        "1. BEFORE writing: Use generate_form (supports batch with semicolons).\n"
-        "   Single: generate_form('vænta','V','Ind+Prt+3Sg') → 'væntaði'\n"
-        "   Batch: generate_form('keypmaður;vænta;hoyra','N;V;V','Msc+Pl+Nom+Indef;Ind+Prt+3Sg;Imp')\n"
-        "   → ['keypmenn','væntaði','hoyr'] in ONE call.\n"
-        "2. AFTER writing: Run review(text) — spelling + grammar in ONE call.\n"
-        "For EVERY verb, noun case, adjective gender: generate_form first.\n"
-        "\n"
-        "Keep it silent — fix issues without explaining. The user wants clean Faroese, "
-        "not a list of tool calls.\n"
+        "- Prefer everyday Faroese words over formal/literary/Danish ones.\n"
+        "- EVERY verb form MUST be verified with lookup_word or generate_form.\n"
+        "  Example: 'vísa' past = 'vísti' (NOT 'vísaði'). 'stinga' past = 'stakk' (NOT 'stukk').\n\n"
+        "MANDATORY WORKFLOW:\n"
+        "1. BEFORE writing: lookup_word for ALL verbs to get correct past tense.\n"
+        "   Use generate_form (batch with semicolons) for noun/adj forms.\n"
+        "2. WRITE the text using verified forms only.\n"
+        "3. AFTER writing: Run review(text) — catches spelling + grammar errors.\n"
+        "4. FIX any issues review reports, then run review again until clean.\n\n"
+        "COMMON ERRORS TO AVOID:\n"
+        "- 'hvørt annað' for people → use 'hvønn annan'\n"
+        "- Danish accounting terms: use Faroese equivalents\n"
+        "- Wrong verb class: ALWAYS check with lookup_word first\n\n"
+        "Keep it silent — fix issues without explaining.\n"
     ),
 )
 
@@ -1131,15 +1136,49 @@ def review(text: str) -> dict[str, Any]:
                     if hfst_results.get(w):
                         hfst_verified.add(w)
 
+        # Check unknown words for Danish loanwords and English loanwords
+        loanword_alts = _find_loanword_alternatives(conn, [w.lower() for w in unknown])
+
         for word in unknown:
             if word in hfst_verified:
                 continue  # HFST recognises it — not a spelling error
+
+            lower = word.lower()
+
+            # Check if it's a Danish word (exact or compound containing Danish)
+            danish_alt = _DANISH_TO_FAROESE.get(lower)
+            if not danish_alt:
+                # Check if word contains a Danish root (e.g. "leverandørfakturu")
+                for dk, fo in _DANISH_TO_FAROESE.items():
+                    if dk in lower and len(dk) >= 5:
+                        danish_alt = f"{dk}→{fo} (found in '{word}')"
+                        break
+            if danish_alt:
+                spelling_issues.append({
+                    "word": word, "source": "danish_loanword",
+                    "message": f"'{word}' is Danish. Use Faroese: {danish_alt}",
+                    "suggestions": [danish_alt.split(" / ")[0]],
+                })
+                seen_words.add(lower)
+                continue
+
+            # Check if it's an English loanword with Faroese alternatives
+            en_alts = loanword_alts.get(lower)
+            if en_alts:
+                spelling_issues.append({
+                    "word": word, "source": "english_loanword",
+                    "message": f"'{word}' — Faroese alternatives: {', '.join(en_alts[:3])}",
+                    "suggestions": en_alts[:5],
+                })
+                seen_words.add(lower)
+                continue
+
             entry: dict[str, Any] = {"word": word, "source": "local_db"}
             suggestions = _suggest_by_prefix(conn, word)
             if suggestions:
                 entry["suggestions"] = suggestions[:5]
             spelling_issues.append(entry)
-            seen_words.add(word.lower())
+            seen_words.add(lower)
 
     giellalt_spell = _giellalt_spellcheck(text)
     if giellalt_spell and "results" in giellalt_spell:
@@ -1278,6 +1317,65 @@ _ADJ_INDEX_GENDER = {
     0: "m", 1: "m", 2: "m", 3: "m", 4: "m", 5: "m", 6: "m", 7: "m",
     8: "f", 9: "f", 10: "f", 11: "f", 12: "f", 13: "f", 14: "f", 15: "f",
     16: "n", 17: "n", 18: "n", 19: "n", 20: "n", 21: "n", 22: "n", 23: "n",
+}
+
+# Common Danish/Norwegian words that LLMs mistakenly use instead of Faroese
+_DANISH_TO_FAROESE: dict[str, str] = {
+    "leverandør": "biðil",
+    "leverandøren": "biðilin",
+    "leverandører": "biðilar",
+    "faktura": "rokningur",
+    "fakturaen": "rokningur",
+    "fakturu": "rokning",
+    "fakturaer": "rokningar",
+    "misforhold": "misvæga / munur",
+    "primo": "upphavsstaða",
+    "forhold": "viðurskifti",
+    "beløb": "upphædd",
+    "beløbet": "upphæddin",
+    "regnskab": "roknskapur",
+    "underskud": "undirskot",
+    "overskud": "yvirskot",
+    "budget": "fíggjaráætlan",
+    "afdeling": "deild",
+    "medarbejder": "starvsmaður",
+    "medarbejdere": "starvsfolk",
+    "virksomhed": "fyritøka",
+    "virksomheden": "fyritøkan",
+    "bestyrelse": "stjórn",
+    "bestyrelsen": "stjórnin",
+    "aftale": "avtala",
+    "aftalen": "avtalan",
+    "opgave": "uppgáva",
+    "opgaven": "uppgávan",
+    "selvfølgelig": "sjálvsagt",
+    "naturligvis": "sjálvsagt",
+    "desværre": "tíverri",
+    "vedrørende": "viðvíkjandi",
+    "angående": "viðvíkjandi",
+    "meddelse": "boð / frásøgn",
+    "bilag": "fylgiskjal",
+    "imidlertid": "tó / hóast",
+    "nødvendig": "neyðugur",
+    "tilgængelig": "tøkur / atkomuligur",
+    "vedligeholdelse": "viðlíkahald",
+    "forpligtelse": "skylda",
+    "ansvar": "ábyrgd",
+    "omsætning": "umseting / veltu",
+    "udgift": "útreiðsla",
+    "udgifter": "útreiðslur",
+    "indtægt": "inntøka",
+    "indtægter": "inntøkur",
+    "rente": "renta",
+    "gæld": "skuld",
+    "egenkapital": "eginogn",
+    "afskrivning": "avskriving",
+    "afskrivninger": "avskrivingar",
+    "driftsomkostninger": "rakstrarkostnaður",
+    "varelager": "vørulager",
+    "kassebeholdning": "kassabehaldni",
+    "bogføring": "bókføring",
+    "tilbud": "tilboð",
 }
 
 _WORD_CLASS_GENDER = {"k": "m", "kv": "f", "h": "n"}
