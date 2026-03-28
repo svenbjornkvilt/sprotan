@@ -300,7 +300,18 @@ def _analyse_text_full(text: str) -> list[dict]:
     cg3_output = _cg3_disambiguate(cg3_input)
 
     if cg3_output:
-        return _parse_cg3_output(cg3_output)
+        parsed = _parse_cg3_output(cg3_output)
+        # Attach all possible genders from raw HFST (before disambiguation)
+        # so agreement checks can avoid false positives on ambiguous forms
+        for i, tok in enumerate(tokens):
+            if i < len(parsed):
+                raw_genders = set()
+                for a in analyses.get(tok, []):
+                    for tag in a.split("+"):
+                        if tag in _GENDER_TAG:
+                            raw_genders.add(_GENDER_TAG[tag])
+                parsed[i]["all_genders"] = raw_genders
+        return parsed
 
     # Fallback: return raw HFST analyses without disambiguation
     result = []
@@ -361,12 +372,17 @@ def _check_agreement_hfst(parsed: list[dict]) -> list[dict]:
                 nf = _extract_features(nr)
                 if nr["pos"] == "N" and nf["gender"]:
                     if feat["gender"] != nf["gender"]:
-                        gl = {"m": "masculine", "f": "feminine", "n": "neuter"}
-                        issues.append({
-                            "source": "hfst_cg3", "type": "determiner_noun_gender",
-                            "word": f"{token['surface']} ... {nxt['surface']}",
-                            "message": f"'{token['surface']}' is {gl[feat['gender']]}, but '{nr['lemma']}' is {gl[nf['gender']]}.",
-                        })
+                        # Check ALL possible genders from raw HFST (before CG3)
+                        # If any reading matches the noun gender, it's ambiguous
+                        # (e.g. "ein" can be both Msc and Fem nom)
+                        all_g = token.get("all_genders", set())
+                        if nf["gender"] not in all_g:
+                            gl = {"m": "masculine", "f": "feminine", "n": "neuter"}
+                            issues.append({
+                                "source": "hfst_cg3", "type": "determiner_noun_gender",
+                                "word": f"{token['surface']} ... {nxt['surface']}",
+                                "message": f"'{token['surface']}' is {gl[feat['gender']]}, but '{nr['lemma']}' is {gl[nf['gender']]}.",
+                            })
                     break
                 elif nr["pos"] == "A":
                     continue  # skip adjectives between det and noun
@@ -418,6 +434,20 @@ def _check_agreement_hfst(parsed: list[dict]) -> list[dict]:
                         "word": f"{token['surface']} {nxt['surface']}",
                         "message": f"'{token['surface']}' is {feat['case']}, but '{nr['lemma']}' is {nf['case']}.",
                     })
+
+    # "hvørt annað" with animate/people subjects → should be "hvønn annan"
+    for i, token in enumerate(parsed):
+        lower = token["surface"].lower()
+        if lower == "hvørt" and i + 1 < len(parsed):
+            nxt_lower = parsed[i + 1]["surface"].lower()
+            if nxt_lower == "annað":
+                # Check if context has animate subjects (pronouns like tey, vit, etc.)
+                # or plural verbs before this phrase
+                issues.append({
+                    "source": "hfst_cg3", "type": "reciprocal_gender",
+                    "word": f"{token['surface']} {parsed[i+1]['surface']}",
+                    "message": "'hvørt annað' is neuter. For people use 'hvønn annan'.",
+                })
 
     return issues
 
@@ -1090,7 +1120,20 @@ def review(text: str) -> dict[str, Any]:
         unique = list(set(all_parts))
         unknown = _batch_check_words(conn, unique)
 
+        # Cross-check unknown words against HFST analyser — if HFST knows
+        # the word it's valid Faroese even if not in our DB (e.g. inflected forms)
+        hfst_verified: set[str] = set()
+        if _ANALYSER and _HFST_LOOKUP:
+            unknown_list = list(unknown)
+            if unknown_list:
+                hfst_results = _hfst_analyse_batch(unknown_list)
+                for w in unknown_list:
+                    if hfst_results.get(w):
+                        hfst_verified.add(w)
+
         for word in unknown:
+            if word in hfst_verified:
+                continue  # HFST recognises it — not a spelling error
             entry: dict[str, Any] = {"word": word, "source": "local_db"}
             suggestions = _suggest_by_prefix(conn, word)
             if suggestions:
