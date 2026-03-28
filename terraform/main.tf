@@ -34,60 +34,75 @@ resource "azurerm_container_registry" "main" {
   admin_enabled       = true
 }
 
-# Container Instance with Caddy HTTPS sidecar
-resource "azurerm_container_group" "main" {
-  name                = "${var.prefix}-mcp"
-  location            = azurerm_resource_group.main.location
+# Log Analytics workspace (required by Container Apps environment)
+resource "azurerm_log_analytics_workspace" "main" {
+  name                = "${var.prefix}-logs"
   resource_group_name = azurerm_resource_group.main.name
-  os_type             = "Linux"
+  location            = azurerm_resource_group.main.location
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
 
-  image_registry_credential {
-    server   = azurerm_container_registry.main.login_server
-    username = azurerm_container_registry.main.admin_username
-    password = azurerm_container_registry.main.admin_password
+  tags = {
+    environment = "production"
+    project     = "sprotan"
+  }
+}
+
+# Container Apps environment
+resource "azurerm_container_app_environment" "main" {
+  name                       = "${var.prefix}-env"
+  resource_group_name        = azurerm_resource_group.main.name
+  location                   = azurerm_resource_group.main.location
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+
+  tags = {
+    environment = "production"
+    project     = "sprotan"
+  }
+}
+
+# Container App
+resource "azurerm_container_app" "main" {
+  name                         = "${var.prefix}-mcp"
+  container_app_environment_id = azurerm_container_app_environment.main.id
+  resource_group_name          = azurerm_resource_group.main.name
+  revision_mode                = "Single"
+
+  registry {
+    server               = azurerm_container_registry.main.login_server
+    username             = azurerm_container_registry.main.admin_username
+    password_secret_name = "acr-password"
   }
 
-  # MCP Server
-  container {
-    name   = "sprotan-mcp"
-    image  = "${azurerm_container_registry.main.login_server}/sprotan-mcp:latest"
-    cpu    = "1"
-    memory = "2"
-
-    ports {
-      port     = 8080
-      protocol = "TCP"
-    }
-
-    commands = ["python3", "mcp_server.py", "--transport", "http"]
+  secret {
+    name  = "acr-password"
+    value = azurerm_container_registry.main.admin_password
   }
 
-  # Caddy HTTPS reverse proxy
-  container {
-    name   = "caddy"
-    image  = "caddy:2-alpine"
-    cpu    = "0.5"
-    memory = "0.5"
+  ingress {
+    external_enabled = true
+    target_port      = 8080
+    transport        = "http"
 
-    ports {
-      port     = 443
-      protocol = "TCP"
+    traffic_weight {
+      latest_revision = true
+      percentage      = 100
     }
-
-    ports {
-      port     = 80
-      protocol = "TCP"
-    }
-
-    commands = [
-      "caddy", "reverse-proxy",
-      "--from", "${var.prefix}.northeurope.azurecontainer.io",
-      "--to", "localhost:8080"
-    ]
   }
 
-  ip_address_type = "Public"
-  dns_name_label  = var.prefix
+  template {
+    min_replicas = 1
+    max_replicas = 1
+
+    container {
+      name   = "sprotan-mcp"
+      image  = "${azurerm_container_registry.main.login_server}/sprotan-mcp:latest"
+      cpu    = 1
+      memory = "2Gi"
+
+      command = ["python3", "mcp_server.py", "--transport", "http"]
+    }
+  }
 
   tags = {
     environment = "production"
@@ -117,7 +132,7 @@ resource "azurerm_storage_container" "data" {
 
 # Outputs
 output "mcp_url" {
-  value = "https://${azurerm_container_group.main.fqdn}/mcp"
+  value = "https://${azurerm_container_app.main.ingress[0].fqdn}/mcp"
 }
 
 output "acr_login_server" {
